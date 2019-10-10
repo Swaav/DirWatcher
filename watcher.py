@@ -1,12 +1,13 @@
-"""Author: Swavae Miller with help from Piero and Zach"""
-# TODO: create functions to track
-# TODO: add try and except statements and maybe unit testing?
+#!/usr/bin/env python3
 import logging
 import datetime
 import time
 import argparse
 import os
 import signal
+
+
+__author__ = "Swavae Miller with help from Piero and Zach"
 # below lets create the logger for the function
 logger = logging.getLogger(__file__)
 # ps aux | grep dirwatcher
@@ -14,6 +15,8 @@ logger = logging.getLogger(__file__)
 watch_files = {}
 exit_flag = False
 last_position = 0
+
+
 def watch_directory(args):
     global watch_files
     directory = args.path
@@ -62,6 +65,8 @@ def create_parser():
     parser.add_argument('path', help='Directory to watch')
     parser.add_argument('magic', help='String to watch for')
     return parser
+
+
 def signal_handler(sig_num, frame):
     """
     This is a handler for SIGTERM and SIGINT. Other signals can be
@@ -81,11 +86,13 @@ def signal_handler(sig_num, frame):
     # logger.warn('Received ' + signames[sig_num])
     global exit_flag
     exit_flag = True
+
+
 def main():
     logging.basicConfig(
-        format='%(asctime)s.%(msecs)03d %(name)-12s %(levelname)-8s [%(threadName)-12s] %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+        format='%(asctime)s.%(msecs)03d %(name)-12s %(levelname)-8s'
+        '[%(threadName)-12s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S')
     logger.setLevel(logging.DEBUG)
     app_start_time = datetime.datetime.now()
     logger.info(
@@ -103,12 +110,12 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     # Now my signal_handler will get called if OS sends
     # either of these to my process.
-    logger.info('Watch Dir: {}, File Ext: {}, Polling Int: {}, Magic Txt: {}'
-                .format(args.path, args.ext, args.interval, args.magic))
+    logger.info(f'Watch Dir: {args.path}, File Ext: {args.ext},'
+                f'Polling Int: {args.interval}, Magic Txt: {args.magic}')
     while not exit_flag:
         try:
             watch_directory(args)
-        except OSError as e:
+        except OSError:
             logger.error('Directory not found: {}'.format(args.path))
             time.sleep(5.0)
         except Exception as e:
@@ -130,5 +137,7 @@ def main():
         '----------------------------------------------------\n'
         .format(__file__, str(uptime))
     )
+
+
 if __name__ == '__main__':
     main()
